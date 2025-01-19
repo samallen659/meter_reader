@@ -3,13 +3,19 @@ import os
 import dotenv
 import httpx
 
-dotenv.load_dotenv()
 
-OCTOPUS_BASE_URL = os.getenv("OCTOPUS_BASE_URL")
-if OCTOPUS_BASE_URL is None:
-    os._exit(1)
+def main():
+    dotenv.load_dotenv()
 
-print(OCTOPUS_BASE_URL)
+    OCTOPUS_BASE_URL = os.getenv("OCTOPUS_BASE_URL")
+    if OCTOPUS_BASE_URL is None:
+        os._exit(1)
 
-r = httpx.get(OCTOPUS_BASE_URL)
-print(r)
+    print(OCTOPUS_BASE_URL)
+
+    r = httpx.get(OCTOPUS_BASE_URL)
+    print(r)
+
+
+if __name__ == "__main__":
+    main()
