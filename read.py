@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 from enum import Enum
 
 import dotenv
@@ -52,7 +53,7 @@ def main():
     #     str(OCTOPUS_ELC_SERIAL),
     #     Fuel.ELECTRICITY,
     # )
-    get_octopus_meter_consumption(
+    get_yesterdays_octopus_meter_consumption(
         str(OCTOPUS_BASE_URL),
         str(OCTOPUS_API_KEY),
         str(OCTOPUS_GAS_MPRN),
@@ -73,11 +74,19 @@ def get_octopus_meter_point(base_url: str, key: str, mpan: str):
     print(r.json())
 
 
-def get_octopus_meter_consumption(
+def get_yesterdays_octopus_meter_consumption(
     base_url: str, key: str, mpan: str, serial: str, fuel: Fuel
 ):
-    print(fuel)
-    url = f"{base_url}{"electricity" if fuel is Fuel.ELECTRICITY else "gas"}-meter-points/{mpan}/meters/{serial}/consumption"
+    yesterday = datetime.today() - timedelta(days=1)
+    get_dates_octopus_meter_consumption(base_url, key, mpan, serial, fuel, yesterday)
+
+
+def get_dates_octopus_meter_consumption(
+    base_url: str, key: str, mpan: str, serial: str, fuel: Fuel, date: datetime
+):
+    start_time = f"{date.strftime("%Y-%m-%d")}T00:00:00Z"
+    end_time = f"{date.strftime("%Y-%m-%d")}T23:30:00Z"
+    url = f"{base_url}{"electricity" if fuel is Fuel.ELECTRICITY else "gas"}-meter-points/{mpan}/meters/{serial}/consumption?period_from={start_time}&period_to={end_time}"
     r = requests.get(url, auth=(key, ""))
     print(r.json())
 
