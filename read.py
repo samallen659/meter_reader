@@ -1,6 +1,9 @@
+import json
 import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import List
 
 import dotenv
 import requests
@@ -15,6 +18,21 @@ def exit_if_none(*args):
 class Fuel(Enum):
     GAS = 1
     ELECTRICITY = 2
+
+
+@dataclass
+class ConsumptionUnit:
+    consumption: int
+    interval_start: datetime
+    interval_end: datetime
+
+
+@dataclass
+class ConsumptionResponse:
+    count: int
+    next: None | str
+    previous: None | str
+    results: List[ConsumptionUnit]
 
 
 def main():
@@ -36,29 +54,6 @@ def main():
         OCTOPUS_GAS_MPRN,
         OCTOPUS_GAS_SERIAL,
         OCTOPUS_ACCOUNT_ID,
-    )
-
-    # get_octopus_account(
-    #     str(OCTOPUS_BASE_URL), str(OCTOPUS_API_KEY), str(OCTOPUS_ACCOUNT_ID)
-    # )
-
-    # get_octopus_meter_point(
-    #     str(OCTOPUS_BASE_URL), str(OCTOPUS_API_KEY), str(OCTOPUS_ELC_MPAN)
-    # )
-    #
-    # get_octopus_meter_consumption(
-    #     str(OCTOPUS_BASE_URL),
-    #     str(OCTOPUS_API_KEY),
-    #     str(OCTOPUS_ELC_MPAN),
-    #     str(OCTOPUS_ELC_SERIAL),
-    #     Fuel.ELECTRICITY,
-    # )
-    get_yesterdays_octopus_meter_consumption(
-        str(OCTOPUS_BASE_URL),
-        str(OCTOPUS_API_KEY),
-        str(OCTOPUS_GAS_MPRN),
-        str(OCTOPUS_GAS_SERIAL),
-        Fuel.GAS,
     )
 
 
@@ -83,12 +78,13 @@ def get_yesterdays_octopus_meter_consumption(
 
 def get_dates_octopus_meter_consumption(
     base_url: str, key: str, mpan: str, serial: str, fuel: Fuel, date: datetime
-):
+) -> ConsumptionResponse:
     start_time = f"{date.strftime("%Y-%m-%d")}T00:00:00Z"
     end_time = f"{date.strftime("%Y-%m-%d")}T23:30:00Z"
     url = f"{base_url}{"electricity" if fuel is Fuel.ELECTRICITY else "gas"}-meter-points/{mpan}/meters/{serial}/consumption?period_from={start_time}&period_to={end_time}"
     r = requests.get(url, auth=(key, ""))
-    print(r.json())
+    data = ConsumptionResponse(**r.json())
+    return data
 
 
 if __name__ == "__main__":
