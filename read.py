@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 from datetime import datetime, timedelta
 
 import dotenv
@@ -9,6 +11,14 @@ from utils import exit_if_none
 
 
 def main():
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.INFO,
+        format="%(asctime)s:%(levelname)s:%(message)s",
+    )
+    logger = logging.getLogger()
+
+    logger.info("Loading environment variables")
     dotenv.load_dotenv()
 
     OCTOPUS_BASE_URL = os.getenv("OCTOPUS_BASE_URL")
@@ -20,13 +30,14 @@ def main():
     OCTOPUS_ACCOUNT_ID = os.getenv("OCTOPUS_ACCOUNT_ID")
 
     exit_if_none(
-        OCTOPUS_BASE_URL,
-        OCTOPUS_API_KEY,
-        OCTOPUS_ELC_MPAN,
-        OCTOPUS_ELC_SERIAL,
-        OCTOPUS_GAS_MPRN,
-        OCTOPUS_GAS_SERIAL,
-        OCTOPUS_ACCOUNT_ID,
+        logger,
+        OCTOPUS_BASE_URL=OCTOPUS_BASE_URL,
+        OCTOPUS_API_KEY=OCTOPUS_API_KEY,
+        OCTOPUS_ELC_MPAN=OCTOPUS_ELC_MPAN,
+        OCTOPUS_ELC_SERIAL=OCTOPUS_ELC_SERIAL,
+        OCTOPUS_GAS_MPRN=OCTOPUS_GAS_MPRN,
+        OCTOPUS_GAS_SERIAL=OCTOPUS_GAS_SERIAL,
+        OCTOPUS_ACCOUNT_ID=OCTOPUS_ACCOUNT_ID,
     )
 
 
